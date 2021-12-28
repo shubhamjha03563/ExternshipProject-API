@@ -3,7 +3,7 @@ require('colors');
 
 // import .env variables
 const dotenv = require('dotenv');
-dotenv.config({ path: './config/.env' });
+dotenv.config({ path: './config/vars.env' });
 
 const db = require('./config/db');
 const cors = require('cors');
