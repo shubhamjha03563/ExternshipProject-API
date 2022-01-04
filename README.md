@@ -16,3 +16,5 @@ npm install or npm i
 ```
 npm start
 ```
+
+Before running the app, run the email microservice (https://github.com/shubhamjha03563/emailService)
