@@ -13,11 +13,12 @@ const helmet = require('helmet');
 const xss = require('xss-clean');
 // const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
-const errorHandler = require('./middlewares/errorHandler');
+const errorHandler = require('./api/v1/middlewares/errorHandler');
 
 app.use(cors());
 app.use(hpp());
 
+// body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -46,8 +47,8 @@ app.use(xss());
 // });
 // app.use(limiter);
 
-const userRoutes = require('./routes/userRoutes');
-const loginRoutes = require('./routes/loginRoutes');
+const userRoutes = require('./api/v1/routes/userRoutes');
+const loginRoutes = require('./api/v1/routes/loginRoutes');
 
 app.use('/users', userRoutes);
 app.use('/login', loginRoutes);
