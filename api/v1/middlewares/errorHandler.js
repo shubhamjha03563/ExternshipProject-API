@@ -2,7 +2,7 @@
 
 const errorHandler = (err, req, res, next) => {
   let error = { ...err };
-  error.statusCode = 200 || err.status;
+  error.statusCode = 400 || err.status;
 
   // Cast errors signify that the input was in the wrong format
   if (err.name === 'CastError') {
