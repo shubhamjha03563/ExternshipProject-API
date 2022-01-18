@@ -14,6 +14,8 @@ const xss = require('xss-clean');
 // const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
 const errorHandler = require('./api/v1/middlewares/errorHandler');
+const localUpload = require('./api/v1/middlewares/localUpload').uploadUserImage;
+app.use(localUpload);
 
 app.use(cors());
 app.use(hpp());

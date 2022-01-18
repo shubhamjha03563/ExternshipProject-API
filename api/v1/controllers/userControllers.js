@@ -8,6 +8,7 @@ const addTokenAndSendResponse = require('../helpers/addTokenAndSendResponse');
 const axios = require('axios');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
 
 exports.getUser = asyncHandler(async (req, res, next) => {
   let userId = req.params.id;
@@ -39,6 +40,10 @@ exports.signup = asyncHandler(async (req, res, next) => {
   }
 
   req.body.hash = password;
+  if (req.file) {
+    req.body.profilePic = req.file.path;
+  }
+
   user = await User.create(req.body);
 
   /*
@@ -161,7 +166,7 @@ exports.emailVerify = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateProfile = asyncHandler(async (req, res, next) => {
-  let userId = req.params.id;
+  let userId = req.user.id;
 
   if (req.body.hasOwnProperty('password')) {
     delete req.body.password;
@@ -169,7 +174,7 @@ exports.updateProfile = asyncHandler(async (req, res, next) => {
   }
 
   let bodyFieldsArray = Object.keys(req.body);
-  if (bodyFieldsArray.length === 0) {
+  if (bodyFieldsArray.length === 0 && !req.file) {
     return next(
       new AppError('Please provide any {field: value} pair to be updated.')
     );
@@ -178,6 +183,12 @@ exports.updateProfile = asyncHandler(async (req, res, next) => {
   // checks if the field names provided in body are present in the model or not
   if (!checkModelFields(User, bodyFieldsArray, next)) {
     return;
+  }
+
+  // console.log('../../' + req.file.path);
+  if (req.file) {
+    fs.unlink(req.file.path, () => {});
+    req.body.profilePic = req.file.path;
   }
 
   let user = await User.findByIdAndUpdate(userId, req.body, {
@@ -300,4 +311,113 @@ exports.searchUsers = asyncHandler(async (req, res, next) => {
     data: { searchResults: searchResultObject },
   });
   next();
+});
+
+exports.getFriends = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.params.id).select('username friends');
+  if (!user) {
+    return next(new AppError(`No user found with id - ${req.params.id}`));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'Request successfull',
+    data: user,
+  });
+});
+
+exports.blockUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.user.id,
+    {
+      $push: { blocked: req.params.id },
+    },
+    { new: true }
+  ).select('blocked');
+
+  if (!user) {
+    return next(new AppError(`No user found with id - ${req.params.id}`));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'User blocked',
+    data: user,
+  });
+});
+
+exports.unblockUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.user.id,
+    {
+      $pull: { blocked: req.params.id },
+    },
+    { new: true }
+  ).select('blocked');
+
+  if (!user) {
+    return next(new AppError(`No user found with id - ${req.params.id}`));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'User unblocked',
+    data: user,
+  });
+});
+
+exports.followUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.user.id,
+    {
+      $push: { following: req.params.id },
+    },
+    { new: true }
+  ).select('following');
+
+  if (!user) {
+    return next(new AppError(`No user found with id - ${req.params.id}`));
+  }
+
+  await User.findByIdAndUpdate(
+    req.params.id,
+    {
+      $push: { followers: req.user.id },
+    },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    message: 'User followed',
+    data: user,
+  });
+});
+
+exports.unfollowUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.user.id,
+    {
+      $pull: { following: req.params.id },
+    },
+    { new: true }
+  ).select('following');
+
+  if (!user) {
+    return next(new AppError(`No user found with id - ${req.params.id}`));
+  }
+
+  await User.findByIdAndUpdate(
+    req.params.id,
+    {
+      $pull: { followers: req.user.id },
+    },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    message: 'User unfollowed',
+    data: user,
+  });
 });

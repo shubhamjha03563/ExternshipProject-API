@@ -32,6 +32,15 @@ const UserSchema = new mongoose.Schema(
     resetPasswordToken: String,
     resetPasswordExpire: Date,
     emailToken: String,
+    friends: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+    friendRequests: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+    friendRequestsSent: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+    friendSuggestions: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+    followers: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+    following: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+    blocked: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+    profilePic: String,
+    city: String,
   },
   { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
 );

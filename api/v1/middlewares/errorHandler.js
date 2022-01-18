@@ -26,7 +26,7 @@ const errorHandler = (err, req, res, next) => {
     }' is not available. Please enter a different value.`;
   }
 
-  console.log(err);
+  // console.log(err);
   res.status(error.statusCode).json({
     success: false,
     message: error.message || err.message,

@@ -17,7 +17,7 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   // if user not found or password is wrong
   if (!user || !(await user.matchPassword(password))) {
-    return next(new AppError('Wrong login credentials.'));
+    return next(new AppError('Wrong login credentials.', 401));
   }
 
   // password should not be given in response, so remove it from user object
