@@ -5,11 +5,11 @@ const AppError = require('../utils/AppError');
 const search = require('../helpers/search');
 const checkModelFields = require('../helpers/checkModelFields');
 const addTokenAndSendResponse = require('../helpers/addTokenAndSendResponse');
-const axios = require('axios');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const { uploadFile, deleteFile } = require('../helpers/cloudUpload');
+const sendEmail = require('../helpers/sendEmail');
 
 exports.getUser = asyncHandler(async (req, res, next) => {
   let userId = req.params.id;
@@ -85,15 +85,10 @@ exports.signup = asyncHandler(async (req, res, next) => {
 
   await User.findByIdAndUpdate(user.id, { emailToken: emailVerifyToken });
 
-  let emailResponse = await axios.post('http://localhost:3000/email/send', {
-    to: user.email,
-    from: process.env.NO_REPLY_EMAIL,
-    fromName: process.env.COMPANY_NAME,
-    email_password: process.env.NO_REPLY_EMAILPASSWORD,
-    subject: 'Email verify link',
-    email_body: `Click this link to verify your email - ${emailVerifyUrl}`,
-  });
-  emailResponse = emailResponse.data;
+  let subject = 'Email verify link',
+    emailBody = `Click this link to verify your email - ${emailVerifyUrl}`;
+
+  const emailResponse = await sendEmail(user.email, subject, emailBody);
 
   if (!emailResponse.success) {
     user.resetPasswordToken = undefined;
@@ -154,15 +149,10 @@ exports.emailVerify = asyncHandler(async (req, res, next) => {
       const emailVerifyToken = user.getJwtToken(process.env.EMAIL_JWT_EXPIRE);
       const emailVerifyUrl = `${process.env.EMAIL_VERIFY_URL}/${emailVerifyToken}`;
 
-      let emailResponse = await axios.post('http://localhost:3000/email/send', {
-        to: user.email,
-        from: process.env.NO_REPLY_EMAIL,
-        fromName: process.env.COMPANY_NAME,
-        email_password: process.env.NO_REPLY_EMAILPASSWORD,
-        subject: 'Email verify link',
-        email_body: `Click this link to verify your email - ${emailVerifyUrl}`,
-      });
-      emailResponse = emailResponse.data;
+      let subject = 'Email verify link',
+        emailBody = `Click this link to verify your email - ${emailVerifyUrl}`;
+
+      const emailResponse = await sendEmail(user.email, subject, emailBody);
 
       if (!emailResponse.success) {
         user.resetPasswordToken = undefined;
@@ -172,7 +162,6 @@ exports.emailVerify = asyncHandler(async (req, res, next) => {
           new AppError(`${emailResponse.message}`, emailResponse.statusCode)
         );
       }
-
       await User.findByIdAndUpdate(user.id, { emailToken: emailVerifyToken });
 
       return next(
@@ -182,7 +171,6 @@ exports.emailVerify = asyncHandler(async (req, res, next) => {
         )
       );
     }
-
     return next(new AppError('Not authorized for this route.', 401));
   }
 });
@@ -207,7 +195,6 @@ exports.updateProfile = asyncHandler(async (req, res, next) => {
     return;
   }
 
-  // console.log('../../' + req.file.path);
   if (req.file) {
     // get old fileId and delete it from cloud storage
     let user = await User.findById(userId).select('profilePic');
@@ -269,25 +256,10 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   //Create reset url
   const resetUrl = `${process.env.RESET_PASSWORD_URL}/${resetToken}`;
 
-  /*
-  {
-    to: receiver_email,
-    from: sender_email,
-    fromName: sender_name,
-    email_password: sender_email_password,
-    subject: email_subject,
-    email_body: email_body
-  }
-  */
-  let emailResponse = await axios.post('http://localhost:3000/email/send', {
-    to: user.email,
-    from: process.env.NO_REPLY_EMAIL,
-    fromName: process.env.COMPANY_NAME,
-    email_password: process.env.NO_REPLY_EMAILPASSWORD,
-    subject: 'Password reset link',
-    email_body: `You are receiving this email because you (or someone else) has requested the reset of password for your account on AAKANKSHA HEALTHCARE SERVICES. Please click this link for password reset, it's valid for 10 minutes - ${resetUrl}`,
-  });
-  emailResponse = emailResponse.data;
+  let subject = 'Password reset link',
+    emailBody = `You are receiving this email because you (or someone else) has requested the reset of password for your account on AAKANKSHA HEALTHCARE SERVICES. Please click this link for password reset, it's valid for 10 minutes - ${resetUrl}`;
+
+  const emailResponse = await sendEmail(user.email, subject, emailBody);
 
   if (!emailResponse.success) {
     user.resetPasswordToken = undefined;
@@ -311,14 +283,11 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   if (!checkFields(req.body, 'body json', ['token', 'newPassword'], next)) {
     return;
   }
-
   let { newPassword, token } = req.body;
-
   const resetPasswordToken = crypto
     .createHash('sha256')
     .update(token)
     .digest('hex');
-
   const user = await User.findOne({
     resetPasswordToken,
     resetPasswordExpire: { $gt: Date.now() },
@@ -331,7 +300,6 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   user.hash = newPassword;
   user.resetPasswordToken = undefined;
   user.resetPasswordExpire = undefined;
-
   await user.save();
 
   res.json({
@@ -339,7 +307,6 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
     message: 'Password reset successfull',
     data: null,
   });
-
   next();
 });
 
