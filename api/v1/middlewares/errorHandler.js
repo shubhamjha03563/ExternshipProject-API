@@ -37,7 +37,7 @@ const errorHandler = async (err, req, res, next) => {
     }
   }
 
-  console.log(err);
+  // console.log(err);
   res.status(error.statusCode).json({
     success: false,
     message: error.message || err.message,

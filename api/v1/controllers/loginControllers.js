@@ -15,8 +15,14 @@ exports.login = asyncHandler(async (req, res, next) => {
   // returns null if not found
   let user = await User.findOne({ email }).select('+hash');
 
-  // if user not found or password is wrong
-  if (!user || !(await user.matchPassword(password))) {
+  if (!user) {
+    // if no user found with the email
+    return next(new AppError('Account not found.', 404));
+  } else if (!user.emailVerified) {
+    // if email not verified
+    return next(new AppError('Please verify your email to login.', 400));
+  } else if (!(await user.matchPassword(password))) {
+    // if password is wrong
     return next(new AppError('Wrong login credentials.', 401));
   }
 
