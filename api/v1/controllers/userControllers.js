@@ -9,6 +9,7 @@ const axios = require('axios');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
+const { uploadFile, deleteFile } = require('../helpers/cloudUpload');
 
 exports.getUser = asyncHandler(async (req, res, next) => {
   let userId = req.params.id;
@@ -40,8 +41,29 @@ exports.signup = asyncHandler(async (req, res, next) => {
   }
 
   req.body.hash = password;
+
   if (req.file) {
-    req.body.profilePic = req.file.path;
+    // get publicUrl and fileId
+    const fileInfo = await uploadFile(
+      req.file.filename,
+      req.file.mimetype,
+      req.file.path
+    );
+    req.body.profilePic = {
+      fileId: fileInfo.fileId,
+      publicUrl: fileInfo.publicUrl,
+    };
+
+    // remove pic from local storage after it's uploaded to cloud
+    fs.unlink(req.file.path, () => {});
+
+    // If failed to upload, then return error and don't create account
+    if (fileInfo.publicUrl == '') {
+      return next(new AppError('Account not created. Please try again!', 400));
+    }
+
+    // if any error happens, then this can be used to remove the file from drive in future
+    req.file.driveFileId = fileInfo.fileId;
   }
 
   user = await User.create(req.body);
@@ -187,8 +209,31 @@ exports.updateProfile = asyncHandler(async (req, res, next) => {
 
   // console.log('../../' + req.file.path);
   if (req.file) {
+    // get old fileId and delete it from cloud storage
+    let user = await User.findById(userId).select('profilePic');
+    await deleteFile(user.profilePic.fileId);
+
+    // get publicUrl and fileId
+    const fileInfo = await uploadFile(
+      req.file.filename,
+      req.file.mimetype,
+      req.file.path
+    );
+    req.body.profilePic = {
+      fileId: fileInfo.fileId,
+      publicUrl: fileInfo.publicUrl,
+    };
+
+    // remove pic from local storage after it's uploaded to cloud
     fs.unlink(req.file.path, () => {});
-    req.body.profilePic = req.file.path;
+
+    // If failed to upload, then return error and don't update
+    if (fileInfo.publicUrl == '') {
+      return next(new AppError('Update failed. Please try again!', 400));
+    }
+
+    // if any error happens, then this can be used to remove the file from drive in future
+    req.file.driveFileId = fileInfo.fileId;
   }
 
   let user = await User.findByIdAndUpdate(userId, req.body, {

@@ -39,7 +39,7 @@ const UserSchema = new mongoose.Schema(
     followers: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
     following: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
     blocked: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
-    profilePic: String,
+    profilePic: { fileId: String, publicUrl: String },
     city: String,
   },
   { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
