@@ -90,7 +90,7 @@ exports.createPost = asyncHandler(async (req, res, next) => {
 
     // If failed to upload, then return error and don't create account
     if (fileInfo.publicUrl == '') {
-      return next(new AppError('Account not created. Please try again!', 400));
+      return next(new AppError('Picture not uploaded. Please try again!', 400));
     }
   }
   let post = await Post.create(req.body);
