@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const checkFields = require('../helpers/checkFields');
 const AppError = require('../utils/AppError');
 
-const verify = (req, res, next) => {
+const verifyUser = (req, res, next) => {
   // checks if 'authorization' header present or not and sends response
   checkFields(req.headers, 'headers', ['authorization'], next);
 
@@ -22,4 +22,4 @@ const verify = (req, res, next) => {
   }
 };
 
-module.exports = verify;
+module.exports = verifyUser;

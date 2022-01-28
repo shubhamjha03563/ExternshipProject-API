@@ -13,7 +13,10 @@ exports.login = asyncHandler(async (req, res, next) => {
   let { email, password } = req.body;
 
   // returns null if not found
-  let user = await User.findOne({ email }).select('+hash');
+  let user = await User.findOneAndUpdate(
+    { email },
+    { lastLoggedIn: Date.now() }
+  ).select('+hash');
 
   if (!user) {
     // if no user found with the email

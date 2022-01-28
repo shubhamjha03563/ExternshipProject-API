@@ -8,8 +8,8 @@ const search = async (model, params) => {
     };
   }
 
-  pg = pg == undefined ? 1 : pg;
-  pglt = pglt == undefined ? 100 : pglt;
+  pg = pg == undefined ? 1 : parseInt(pg);
+  pglt = pglt == undefined ? 100 : parseInt(pglt);
 
   // If page is <= 0
   if (pg <= 0) {

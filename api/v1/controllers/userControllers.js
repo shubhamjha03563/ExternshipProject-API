@@ -13,22 +13,17 @@ const sendEmail = require('../helpers/sendEmail');
 
 exports.getUser = asyncHandler(async (req, res, next) => {
   let userId = req.params.id;
-
   let user = await User.findById(userId);
   if (!user) {
     return next(new AppError(`User not found with the id - ${userId}`));
   }
 
   res.json({ success: true, message: 'success', data: { user } });
-
-  next();
+  return next();
 });
 
 exports.signup = asyncHandler(async (req, res, next) => {
-  // checks if required fields are present in the body or not
-
   let { email, password } = req.body;
-
   let user = await User.findOne({ email, emailVerified: true });
 
   // if user already registered
@@ -356,6 +351,11 @@ exports.blockUser = asyncHandler(async (req, res, next) => {
     message: 'User blocked',
     data: user,
   });
+
+  // add current user's id to the blocked user's data
+  await User.findByIdAndUpdate(req.params.id, {
+    $push: { blockedBy: req.user.id },
+  });
 });
 
 exports.unblockUser = asyncHandler(async (req, res, next) => {
@@ -375,6 +375,11 @@ exports.unblockUser = asyncHandler(async (req, res, next) => {
     success: true,
     message: 'User unblocked',
     data: user,
+  });
+
+  // remove current user's id from the blocked user's data
+  await User.findByIdAndUpdate(req.params.id, {
+    $pull: { blockedBy: req.user.id },
   });
 });
 

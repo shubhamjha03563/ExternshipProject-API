@@ -1,5 +1,4 @@
 const express = require('express');
-const app = express();
 
 const router = express.Router();
 const {
@@ -15,7 +14,6 @@ const {
   unblockUser,
   followUser,
   unfollowUser,
-  uploadProfilePicture,
 } = require('../controllers/userControllers');
 
 const {
@@ -27,26 +25,26 @@ const {
   approveRequests,
 } = require('../controllers/friendControllers');
 
-const verify = require('../middlewares/verify');
+const verifyUser = require('../middlewares/verifyUser');
 
 router.route('/signup').post(signup);
-router.route('/').get(verify, searchUsers).put(verify, updateProfile);
+router.route('/').get(verifyUser, searchUsers).put(verifyUser, updateProfile);
 router.route('/forgot_password').post(forgotPassword);
 router.route('/reset_password').post(resetPassword);
 router.route('/email_verify/:email_token').get(emailVerify);
 router.route('/:id').get(getUser);
-router.route('/block/:id').get(verify, blockUser);
-router.route('/unblock/:id').get(verify, unblockUser);
-router.route('/follow/:id').get(verify, followUser);
-router.route('/unfollow/:id').get(verify, unfollowUser);
+router.route('/block/:id').get(verifyUser, blockUser);
+router.route('/unblock/:id').get(verifyUser, unblockUser);
+router.route('/follow/:id').get(verifyUser, followUser);
+router.route('/unfollow/:id').get(verifyUser, unfollowUser);
 router.route('/:id/friends').get(getFriends);
 
 // /friends
-router.route('/friends/:id').delete(verify, unfriend);
-router.route('/friends/suggestions').get(verify, getSuggestions);
-router.route('/friends/requests/send/:id').get(verify, sendRequest);
-router.route('/friends/requests/approve/:id').get(verify, approveRequests);
-router.route('/friends/requests/:id').delete(verify, rejectRequests);
-router.route('/friends/requests').get(verify, getRequests);
+router.route('/friends/:id').delete(verifyUser, unfriend);
+router.route('/friends/suggestions').get(verifyUser, getSuggestions);
+router.route('/friends/requests/send/:id').get(verifyUser, sendRequest);
+router.route('/friends/requests/approve/:id').get(verifyUser, approveRequests);
+router.route('/friends/requests/:id').delete(verifyUser, rejectRequests);
+router.route('/friends/requests').get(verifyUser, getRequests);
 
 module.exports = router;

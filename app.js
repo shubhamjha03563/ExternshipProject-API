@@ -51,9 +51,11 @@ app.use(xss());
 
 const userRoutes = require('./api/v1/routes/userRoutes');
 const loginRoutes = require('./api/v1/routes/loginRoutes');
+const postRoutes = require('./api/v1/routes/postRoutes');
 
 app.use('/users', userRoutes);
 app.use('/login', loginRoutes);
+app.use('/posts', postRoutes);
 
 // error handler
 app.use(errorHandler);

@@ -32,17 +32,27 @@ const UserSchema = new mongoose.Schema(
     resetPasswordToken: String,
     resetPasswordExpire: Date,
     emailToken: String,
-    friends: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
-    friendRequests: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
-    friendRequestsSent: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
-    friendSuggestions: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
-    followers: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
-    following: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
-    blocked: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
-    profilePic: { fileId: String, publicUrl: String },
     city: String,
+    friends: [{ type: mongoose.Schema.ObjectId, ref: 'user' }],
+    friendRequests: [{ type: mongoose.Schema.ObjectId, ref: 'user' }],
+    friendRequestsSent: [{ type: mongoose.Schema.ObjectId, ref: 'user' }],
+    friendSuggestions: [{ type: mongoose.Schema.ObjectId, ref: 'user' }],
+    followers: [{ type: mongoose.Schema.ObjectId, ref: 'user' }],
+    following: [{ type: mongoose.Schema.ObjectId, ref: 'user' }],
+    blocked: [{ type: mongoose.Schema.ObjectId, ref: 'user' }],
+    blockedBy: [{ type: mongoose.Schema.ObjectId, ref: 'user' }],
+    profilePic: { fileId: String, publicUrl: String },
+    lastLoggedIn: Date,
+    likedTags: [String],
+    usersTagged: {
+      type: [mongoose.Schema.ObjectId],
+      ref: 'user',
+    },
+    postTags: [String],
+    savedPosts: [{ type: mongoose.Schema.ObjectId, ref: 'post' }],
+    likedPosts: [{ type: mongoose.Schema.ObjectId, ref: 'post' }],
   },
-  { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
+  { timestamps: true }
 );
 
 // hash password before saving
