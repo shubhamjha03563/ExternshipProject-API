@@ -51,6 +51,10 @@ const UserSchema = new mongoose.Schema(
     postTags: [String],
     savedPosts: [{ type: mongoose.Schema.ObjectId, ref: 'post' }],
     likedPosts: [{ type: mongoose.Schema.ObjectId, ref: 'post' }],
+    emailNotifications: { type: Boolean, default: true },
+    appNotification: { type: Boolean, default: true },
+    friendsVisibility: { type: Boolean, default: true },
+    privateProfile: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

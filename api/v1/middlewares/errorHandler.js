@@ -9,7 +9,7 @@ const errorHandler = async (err, req, res, next) => {
   // Cast errors signify that the input was in the wrong format
   if (err.name === 'CastError') {
     error.status = 400;
-    error.message = 'Cast Error - Invalid Id';
+    error.message = `Invalid value provided for '${err.path}'.`;
   }
 
   // Validation errors

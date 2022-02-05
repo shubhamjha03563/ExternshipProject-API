@@ -1,7 +1,7 @@
 const express = require('express');
 require('colors');
 
-// import .env variables
+// import environment variables (from .env file)
 const dotenv = require('dotenv');
 dotenv.config({ path: './config/vars.env' });
 
@@ -49,13 +49,13 @@ app.use(xss());
 // });
 // app.use(limiter);
 
-const userRoutes = require('./api/v1/routes/userRoutes');
-const loginRoutes = require('./api/v1/routes/loginRoutes');
-const postRoutes = require('./api/v1/routes/postRoutes');
+const userRoute = require('./api/v1/routes/userRoute');
+const loginRoute = require('./api/v1/routes/loginRoute');
+const postRoute = require('./api/v1/routes/postRoute');
 
-app.use('/users', userRoutes);
-app.use('/login', loginRoutes);
-app.use('/posts', postRoutes);
+app.use('/users', userRoute);
+app.use('/login', loginRoute);
+app.use('/posts', postRoute);
 
 // error handler
 app.use(errorHandler);

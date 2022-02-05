@@ -186,7 +186,7 @@ exports.updateProfile = asyncHandler(async (req, res, next) => {
   }
 
   // checks if the field names provided in body are present in the model or not
-  if (!checkModelFields(User, bodyFieldsArray, next)) {
+  if (!(await checkModelFields(User, bodyFieldsArray, next))) {
     return;
   }
 

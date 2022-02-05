@@ -14,7 +14,7 @@ const {
   unblockUser,
   followUser,
   unfollowUser,
-} = require('../controllers/userControllers');
+} = require('../controllers/userController');
 
 const {
   unfriend,
@@ -23,7 +23,7 @@ const {
   rejectRequests,
   getRequests,
   approveRequests,
-} = require('../controllers/friendControllers');
+} = require('../controllers/friendController');
 
 const verifyUser = require('../middlewares/verifyUser');
 

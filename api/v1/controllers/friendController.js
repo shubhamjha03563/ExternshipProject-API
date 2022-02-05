@@ -1,5 +1,4 @@
 const asyncHandler = require('../middlewares/asyncHandler');
-const checkFields = require('../helpers/checkFields');
 const User = require('../models/User');
 const AppError = require('../utils/AppError');
 
