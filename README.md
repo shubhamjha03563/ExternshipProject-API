@@ -1,5 +1,5 @@
 # ExternshipProject-API
-Project for Externship by Flipr.
+A Rest API with full back-end architecture for a social media app with each API call tested (with POSTMAN) and every possible error handled with proper JSON response for each error.
 
 ## Usage
 
